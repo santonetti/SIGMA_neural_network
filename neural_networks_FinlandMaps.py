@@ -25,7 +25,8 @@ paths = [path_train, path_valid]
 
 CATEGORIES = ["Forest", "Mesic grassland", "Moist grassland", "Arable", "Pasture", "Peatland"]
 
-IMG_SIZE = 15
+IMG_SIZE = 30
+
 
 def create_data():
     
