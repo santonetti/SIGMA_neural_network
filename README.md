@@ -1,4 +1,4 @@
-# Atelier SIGMA Reseau de neurones 
+# Atelier SIGMA Neural Network
 
 Code to create and train a neural network 
 
@@ -9,6 +9,7 @@ There are multiple applications for images studies.<br>
 The goal here is to create, train, and use a neural network to predict landuse in a Finnish historical map.
 
 (Photo Example)
+
 
 ## Who are we ?
 
