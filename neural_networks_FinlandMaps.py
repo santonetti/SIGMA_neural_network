@@ -6,26 +6,28 @@ Created on Mon Feb 17 14:31:18 2020
 """
 
 import tensorflow as tf
-from tensorflow.keras.datasets import mnist
 from matplotlib import pyplot as plt
 plt.style.use('dark_background')
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Activation, Dropout, Conv2D, MaxPooling2D
-from tensorflow.keras.utils import normalize, to_categorical
-
+from tensorflow.keras.layers import Dense, MaxPooling2D,Conv2D, Dropout,Flatten
+from tensorflow.keras.utils import plot_model
+#from keras_applications.inception_v3 import Inception_V3
 import numpy as np
 import os
 import cv2
 
 
-#######################   Importation des données
-path_train = "C:/Users/Sam/Desktop/AtelierSIGMA/Neural_Networks/data/30x30/train"
-path_valid = "C:/Users/Sam/Desktop/AtelierSIGMA/Neural_Networks/data/30x30/valid"
+#-----------------------------   Choix des données  ----------------------------------
+path_train = "/home/dynafor/Documents/NN/FinlandMaps/tiles/V2/30x30/train" #données d'entrainement
+path_valid = "/home/dynafor/Documents/NN/FinlandMaps/tiles/V2/30x30/valid" #données de validation
+
 paths = [path_train, path_valid]
 
-CATEGORIES = ["Forest", "Mesic grassland", "Moist grassland", "Arable", "Pasture", "Peatland"]
+CATEGORIES = ["Forest", "Mesic grassland", "Moist grassland", "Arable", "Pasture", "Peatland"]#labels
 
-IMG_SIZE = 30
+IMG_SIZE = 30 #taille des images de validation et entrainement 
+
+#-----------------------------   Importation des données  ----------------------------------
 
 
 def create_data():
@@ -44,33 +46,35 @@ def create_data():
                     valid_data.append([new_array, int(img_class_num)-1])
             except Exception:
                 pass
-    return (train_data, valid_data)
+    return ( valid_data,train_data)
 
 (valid_data, train_data) = create_data()
 
 
-#######################   Réarrangement des données d'entrainement
+#-----------------------------  Réarrangement des données d'entrainement ----------------------------------
+
+
 train_features=[]
 train_classes = []
 for feature, classes in train_data :
     train_features.append(feature)
     train_classes.append(classes)
 
-train_features=np.array(train_features).reshape(-1, IMG_SIZE, IMG_SIZE, 1)
+train_features=np.array(train_features).reshape(-1, IMG_SIZE, IMG_SIZE,1)
 train_classes=np.array(train_classes)
 
+#-----------------------------   Réarrangement des données de validation  ----------------------------------
 
-#######################   Réarrangement des données de validation
 valid_features=[]
 valid_classes = []
 for feature, classes in valid_data :
     valid_features.append(feature)
     valid_classes.append(classes)
 
-valid_features=np.array(valid_features).reshape(-1, IMG_SIZE, IMG_SIZE, 1)
+valid_features=np.array(valid_features).reshape(-1, IMG_SIZE, IMG_SIZE,1)
 valid_classes=np.array(valid_classes)
 
-# TEST 1
+#-----------------------------   Création du model  ----------------------------------
 model = Sequential()
 model.add(Conv2D(64, (3,3), input_shape =valid_features.shape[1:], activation="relu"))
 model.add(MaxPooling2D(pool_size=(2,2)))
@@ -83,11 +87,12 @@ model.add(Dense(64))
 model.add(Dense(6, activation=tf.nn.softmax))
 
 
-model.compile (optimizer='adam', 
-               loss='sparse_categorical_crossentropy', 
-               metrics=['accuracy'])
+model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
-model.fit(train_features, train_classes, epochs=100, verbose=1)
+#-----------------------------   Entrainement du model  ----------------------------------
+
+
+model.fit(train_features, train_classes, epochs=150, verbose=1)
 
 val_loss, val_acc = model.evaluate(valid_features, valid_classes)
 print("\n Val.loss = ", val_loss," - Val.acc = ", val_acc, "\n")
@@ -102,9 +107,17 @@ np.unique(predictions_highest,return_counts=True)
 print(np.argmax(predictions[0]))
 
 
-i=12
-plt.imshow(valid_features[i].reshape(IMG_SIZE, IMG_SIZE), cmap='gray')
-plt.title("Prediction : " + CATEGORIES[np.argmax(predictions[i])])
-plt.xlabel("Reality : " + CATEGORIES[valid_classes[i]])
-plt.show()
+#-----------------------------   Affichage de resultats du model  ----------------------------------
+
+
+for i in range (0,2):
+    plt.imshow(valid_features[i].reshape(IMG_SIZE, IMG_SIZE), cmap='gray')
+    plt.title("Prediction : " + CATEGORIES[np.argmax(predictions[i])])
+    plt.xlabel("Reality : " + CATEGORIES[valid_classes[i]])
+    plt.show()
+    
+    
+#-----------------------------   PNG de l'architecture du model   ----------------------------------
+
+plot_model(new_model , to_file='/home/dynafor/Documents/NN/FinlandMaps/cnn_model.png', show_shapes=True, show_layer_names=True)
 

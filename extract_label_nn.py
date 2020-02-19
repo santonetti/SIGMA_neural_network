@@ -11,25 +11,27 @@ import gdal
 import numpy as np
 import cv2 
 
+#-----------------------------   Choix des données  ----------------------------------
 
-mapcv = '/home/dynafor/Documents/NN/FinlandMaps/example_entire_map.tif'
+raster = '/home/dynafor/Documents/NN/FinlandMaps/example_entire_map.tif' 
 size = 30
 labels = [1,2,3,4,5,6]
 
 
+#-----------   Enregistrement des données de validation et entrainement  --------------
 
 cv =mtb.cross_validation.RandomStratifiedKFold(random_state=12)
 cvs = cv.save_to_vector('/home/dynafor/Documents/NN/FinlandMaps/trainingV2.gpkg','Class', 'polygon_id' ,out_vector = '/home/dynafor/Documents/NN/FinlandMaps/crossvalV2.gpkg')
 
-mtb.processing.rasterize(mapcv,cvs[0][0],'Class','/home/dynafor/Documents/NN/FinlandMaps/trainV2.tif',gdt=gdal.GDT_Byte)
-mtb.processing.rasterize(mapcv,cvs[0][1],'Class','/home/dynafor/Documents/NN/FinlandMaps/validV2.tif',gdt=gdal.GDT_Byte)
+mtb.processing.rasterize(raster,cvs[0][0],'Class','/home/dynafor/Documents/NN/FinlandMaps/trainV2.tif',gdt=gdal.GDT_Byte)
+mtb.processing.rasterize(raster,cvs[0][1],'Class','/home/dynafor/Documents/NN/FinlandMaps/validV2.tif',gdt=gdal.GDT_Byte)
 
-rM=mtb.processing.RasterMath(mapcv,return_3d=True)
+rM=mtb.processing.RasterMath(raster,return_3d=True)
 
 rM.add_image('/home/dynafor/Documents/NN/FinlandMaps/trainV2.tif')
 rM.add_image('/home/dynafor/Documents/NN/FinlandMaps/validV2.tif')
 
-
+#---------------------------   Création des dossiers  ----------------------------------
 folder = "/home/dynafor/Documents/NN/FinlandMaps/tiles/V2/"
 #folder ="/home/dynafor/Documents/NN/FinlandMaps/tiles/"
 out_folder = folder+'{0}x{0}/'.format(size)
@@ -41,6 +43,8 @@ for trvl in ['train','valid']:
         print(tmp_out)
         os.makedirs(tmp_out)
 rM.custom_block_size(size,size)
+
+#---------------------------   Verification des labels  ----------------------------------
 
 def check (X): 
     
@@ -55,6 +59,7 @@ def check (X):
         label = int(X[2][0][0])
         yield label,'valid'
 
+#----------------------   Enrgistrement des images avec labels  ----------------------------
 
 from tqdm import trange
 
