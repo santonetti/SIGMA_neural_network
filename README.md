@@ -8,7 +8,7 @@ Neural Networks are becoming fashionable.<br>
 There are multiple applications for images studies.<br>
 The goal here is to create, train, and use a neural network to predict landuse in a Finnish historical map.
 
-(Photo Example)
+![Screenshot](map_example.png)
 
 
 ## Who are we ?
