@@ -48,8 +48,10 @@ rM.custom_block_size(size,size)
 
 #---------------------------   Verification des labels  ----------------------------------
 
+
 def check (X): 
-    
+
+#todo : check block size strictly like size, do not take the last blocks 
     if np.all(X[1] == 0) and np.all(X[2] == 0):
         yield False,False
 
